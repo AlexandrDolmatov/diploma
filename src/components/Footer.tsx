@@ -6,7 +6,7 @@ import React from 'react';
 const Footer: React.FC = () => (
   <footer>
     <div className="footer-section">
-      <h4>Last.fm Clone</h4>
+      <h4>Music Discovery</h4>
       <ul>
         <li>2025 &copy; Alexandr Dolmatov</li>
         <li>Неофициальный дипломный проект</li>
@@ -24,6 +24,7 @@ const Footer: React.FC = () => (
       <ul>
         <li><a href="mailto:dolmatov_ae@icloud.com">Почта</a></li>
         <li><a href="https://github.com/AlexandrDolmatov" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/aleksandr-dolmatov-suai/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
       </ul>
     </div>
   </footer>

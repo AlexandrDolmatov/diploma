@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TrackModal from '../components/TrackModal';
+import { lastFmRequest } from '../utils/api';
+import DOMPurify from 'dompurify';
 
 interface ArtistInfo {
   name: string;
@@ -44,16 +46,13 @@ const ArtistPage: React.FC = () => {
     setError(null);
     Promise.all([
       // artist.getInfo
-      fetch(`https://ws.audioscrobbler.com/2.0/?method=artist.getInfo&api_key=96b91d7d9d3ab377398ec03076a5305e&artist=${encodeURIComponent(name)}&format=json`)
-        .then(res => res.json())
+      lastFmRequest('artist.getInfo', { artist: name })
         .then(data => data.artist),
       // artist.getTopTracks
-      fetch(`https://ws.audioscrobbler.com/2.0/?method=artist.getTopTracks&api_key=96b91d7d9d3ab377398ec03076a5305e&artist=${encodeURIComponent(name)}&limit=10&format=json`)
-        .then(res => res.json())
+      lastFmRequest('artist.getTopTracks', { artist: name, limit: '10' })
         .then(data => data.toptracks?.track || []),
       // artist.getSimilar
-      fetch(`https://ws.audioscrobbler.com/2.0/?method=artist.getSimilar&api_key=96b91d7d9d3ab377398ec03076a5305e&artist=${encodeURIComponent(name)}&limit=8&format=json`)
-        .then(res => res.json())
+      lastFmRequest('artist.getSimilar', { artist: name, limit: '8' })
         .then(data => data.similarartists?.artist || []),
     ])
       .then(([artistData, tracksData, similarData]) => {
@@ -150,7 +149,7 @@ const ArtistPage: React.FC = () => {
         {tab === 'bio' && (
           <div style={{ color: '#eee', lineHeight: 1.7 }}>
             {artist.bio?.content
-              ? <span dangerouslySetInnerHTML={{ __html: artist.bio.content }} />
+              ? <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(artist.bio.content) }} />
               : 'Нет биографии'}
           </div>
         )}

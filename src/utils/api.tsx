@@ -1,17 +1,27 @@
-const API_KEY = '96b91d7d9d3ab377398ec03076a5305e';
 const API_URL = 'https://ws.audioscrobbler.com/2.0/';
+
+/** Shared transport for the public Last.fm read API. Never use an API secret here. */
+export async function lastFmRequest(method: string, params: Record<string, string> = {}) {
+  const apiKey = process.env.REACT_APP_LASTFM_API_KEY?.trim();
+  if (!apiKey) {
+    throw new Error('Last.fm API key is not configured. See README configuration.');
+  }
+  const url = new URL(API_URL);
+  Object.entries({ ...params, method, api_key: apiKey, format: 'json' })
+    .forEach(([key, value]) => url.searchParams.set(key, value));
+  const response = await fetch(url.toString());
+  if (!response.ok) throw new Error(`Last.fm request failed (HTTP ${response.status}).`);
+  const data = await response.json();
+  // Last.fm can return API errors in a successful HTTP response.
+  if (data.error) throw new Error(`Last.fm API error ${data.error}.`);
+  return data;
+}
 
 /**
  * Получить топ-артистов.
  */
 export async function fetchTopArtists() {
-  const url = new URL(API_URL);
-  url.searchParams.set('method', 'chart.getTopArtists');
-  url.searchParams.set('api_key', API_KEY);
-  url.searchParams.set('format', 'json');
-  url.searchParams.set('limit', '20');
-  const res = await fetch(url.toString());
-  const data = await res.json();
+  const data = await lastFmRequest('chart.getTopArtists', { limit: '20' });
   return (data?.artists?.artist || []).map((a: any) => ({
     name: a.name,
     listeners: a.listeners,
@@ -23,13 +33,7 @@ export async function fetchTopArtists() {
  * Получить топ-треки.
  */
 export async function fetchTopTracks() {
-  const url = new URL(API_URL);
-  url.searchParams.set('method', 'chart.getTopTracks');
-  url.searchParams.set('api_key', API_KEY);
-  url.searchParams.set('format', 'json');
-  url.searchParams.set('limit', '10');
-  const res = await fetch(url.toString());
-  const data = await res.json();
+  const data = await lastFmRequest('chart.getTopTracks', { limit: '10' });
   return (data?.tracks?.track || []).map((t: any) => ({
     name: t.name,
     artist: { name: t.artist.name },
@@ -42,14 +46,7 @@ export async function fetchTopTracks() {
  * Поиск артистов по строке.
  */
 export async function searchArtists(query: string) {
-  const url = new URL(API_URL);
-  url.searchParams.set('method', 'artist.search');
-  url.searchParams.set('artist', query);
-  url.searchParams.set('api_key', API_KEY);
-  url.searchParams.set('format', 'json');
-  url.searchParams.set('limit', '7');
-  const res = await fetch(url.toString());
-  const data = await res.json();
+  const data = await lastFmRequest('artist.search', { artist: query, limit: '7' });
   return (data?.results?.artistmatches?.artist || []).map((a: any) => ({
     name: a.name,
     listeners: a.listeners,
@@ -61,14 +58,7 @@ export async function searchArtists(query: string) {
  * Поиск треков по строке.
  */
 export async function searchTracks(query: string) {
-  const url = new URL(API_URL);
-  url.searchParams.set('method', 'track.search');
-  url.searchParams.set('track', query);
-  url.searchParams.set('api_key', API_KEY);
-  url.searchParams.set('format', 'json');
-  url.searchParams.set('limit', '7');
-  const res = await fetch(url.toString());
-  const data = await res.json();
+  const data = await lastFmRequest('track.search', { track: query, limit: '7' });
   return (data?.results?.trackmatches?.track || []).map((t: any) => ({
     name: t.name,
     artist: { name: t.artist },

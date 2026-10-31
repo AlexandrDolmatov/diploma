@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import MainPage from '../../diploma/src/pages/MainPage';
-import ArtistPage from '../../diploma/src/pages/ArtistPage';
-import Footer from '../../diploma/src/components/Footer';
+import MainPage from './pages/MainPage';
+import ArtistPage from './pages/ArtistPage';
+import Footer from './components/Footer';
 
 /**
  * Главный компонент приложения, отвечает за роутинг и базовый layout.

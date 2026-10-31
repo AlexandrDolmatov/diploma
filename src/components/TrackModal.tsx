@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { lastFmRequest } from '../utils/api';
+import DOMPurify from 'dompurify';
 
 /**
  * Пропсы для модального окна трека.
@@ -33,8 +35,7 @@ const TrackModal: React.FC<TrackModalProps> = ({ artist, track, onClose }) => {
     setError(null);
 
     // Запрос к API Last.fm
-    fetch(`https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=96b91d7d9d3ab377398ec03076a5305e&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(track)}&format=json`)
-      .then(res => res.json())
+    lastFmRequest('track.getInfo', { artist, track })
       .then(data => {
         if (!isMounted) return;
         if (data.track) {
@@ -73,7 +74,7 @@ const TrackModal: React.FC<TrackModalProps> = ({ artist, track, onClose }) => {
             <div><strong>Альбом:</strong> {trackInfo.album?.title || 'Неизвестен'}</div>
             <div style={{ marginTop: 14, color: '#ccc' }}>
               {trackInfo.wiki?.summary
-                ? <span dangerouslySetInnerHTML={{ __html: trackInfo.wiki.summary }} />
+                ? <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(trackInfo.wiki.summary) }} />
                 : 'Нет описания трека'}
             </div>
           </>

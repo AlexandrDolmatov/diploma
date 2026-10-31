@@ -57,6 +57,7 @@ const MainPage: React.FC = () => {
       setError(null);
       setIsSearchModalOpen(true); // Открыть модалку после поиска
     } catch (e) {
+      setSearchResults(null);
       setError('Ошибка поиска. Попробуйте позже.');
       setIsSearchModalOpen(true);
     } finally {
@@ -90,6 +91,7 @@ const MainPage: React.FC = () => {
               <span className="close-modal" onClick={closeSearchModal}>&times;</span>
               <div className="search-results">
                 <h2>Результаты поиска для "{searchQuery}"</h2>
+                {error && <div className="error" role="alert">{error}</div>}
                 <div className="search-section">
                   <h3>Артисты</h3>
                   <div className="artists search-artists">
